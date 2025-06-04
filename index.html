@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comic Quest - Game Mobile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animations dan styles */
+        .comic-panel {
+            transition: all 0.3s ease-in-out;
+            transform-origin: center;
+        }
+        
+        .comic-panel.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+        }
+        
+        .speech-bubble {
+            position: relative;
+            background: white;
+            border-radius: 15px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid white;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .gradient-bg-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-bg-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .gradient-bg-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .gradient-bg-4 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .character-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white overflow-hidden">
+    <!-- Header -->
+    <header class="bg-gray-800 p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <span class="text-white font-bold text-sm">CQ</span>
+            </div>
+            <h1 class="text-lg font-bold">Comic Quest</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <span class="text-yellow-400">⭐</span>
+                <span id="score">0</span>
+            </div>
+            <button class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="relative h-screen">
+        <!-- Comic Panel Container -->
+        <div id="comic-container" class="absolute inset-0 flex items-center justify-center p-4">
+            <!-- Panel 1 -->
+            <div id="panel-1" class="comic-panel w-full max-w-sm h-96 gradient-bg-1 rounded-lg p-6 flex flex-col justify-between active">
+                <div class="text-center">
+                    <div class="character-avatar bg-purple-600 mx-auto">🦸</div>
+                    <h2 class="text-xl font-bold mb-4">Selamat Datang, Hero!</h2>
+                    <p class="text-sm opacity-90">Petualangan epik menunggumu di dunia komik digital.</p>
+                </div>
+                
+                <div class="speech-bubble slide-in">
+                    <p class="text-gray-800 text-sm">"Hai! Aku adalah panduan mu. Siap memulai petualangan?"</p>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button class="choice-btn flex-1 bg-white/20 backdrop-blur-sm rounded-lg py-3 px-4 text-sm font-medium hover:bg-white/30 transition-all" data-choice="yes">
+                        Ya, Ayo Mulai! 🚀
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel 2 (Hidden initially) -->
+            <div id="panel-2" class="comic-panel w-full max-w-sm h-96 gradient-bg-2 rounded-lg p-6 flex-col justify-between hidden">
+                <div class="text-center">
+                    <div class="character-avatar bg-red-500 mx-auto">🏰</div>
+                    <h2 class="text-xl font-bold mb-4">Kota Mysteria</h2>
+                    <p class="text-sm opacity-90">Kamu tiba di sebuah kota misterius yang penuh dengan teka-teki.</p>
+                </div>
+                
+                <div class="speech-bubble">
+                    <p class="text-gray-800 text-sm">"Pilih jalur mana yang akan kamu ambil?"</p>
+                </div>
+                
+                <div class="flex flex-col space-y-2">
+                    <button class="choice-btn bg-white/20 backdrop-blur-sm rounded-lg py-3 px-4 text-sm font-medium hover:bg-white/30 transition-all" data-choice="forest">
+                        🌲 Hutan Gelap
+                    </button>
+                    <button class="choice-btn bg-white/20 backdrop-blur-sm rounded-lg py-3 px-4 text-sm font-medium hover:bg-white/30 transition-all" data-choice="castle">
+                        🏰 Kastil Tua
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel 3 -->
+            <div id="panel-3" class="comic-panel w-full max-w-sm h-96 gradient-bg-3 rounded-lg p-6 flex-col justify-between hidden">
+                <div class="text-center">
+                    <div class="character-avatar bg-green-500 mx-auto">🌲</div>
+                    <h2 class="text-xl font-bold mb-4">Hutan Mysteria</h2>
+                    <p class="text-sm opacity-90">Di dalam hutan, kamu menemukan makhluk ajaib!</p>
+                </div>
+                
+                <div class="speech-bubble">
+                    <p class="text-gray-800 text-sm">"Selamat! Kamu menemukan harta karun tersembunyi! +100 poin!"</p>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button class="choice-btn flex-1 bg-white/20 backdrop-blur-sm rounded-lg py-3 px-4 text-sm font-medium hover:bg-white/30 transition-all" data-choice="continue">
+                        Lanjutkan Petualangan ➡️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel 4 -->
+            <div id="panel-4" class="comic-panel w-full max-w-sm h-96 gradient-bg-4 rounded-lg p-6 flex-col justify-between hidden">
+                <div class="text-center">
+                    <div class="character-avatar bg-purple-700 mx-auto">🏰</div>
+                    <h2 class="text-xl font-bold mb-4">Kastil Mysteria</h2>
+                    <p class="text-sm opacity-90">Kastil tua menyimpan banyak rahasia dan bahaya.</p>
+                </div>
+                
+                <div class="speech-bubble">
+                    <p class="text-gray-800 text-sm">"Hati-hati! Kamu harus memecahkan teka-teki untuk melanjutkan!"</p>
+                </div>
+                
+                <div class="flex flex-col space-y-2">
+                    <button class="choice-btn bg-white/20 backdrop-blur-sm rounded-lg py-3 px-4 text-sm font-medium hover:bg-white/30 transition-all" data-choice="puzzle">
+                        🧩 Pecahkan Teka-teki
+                    </button>
+                    <button class="choice-btn bg-white/20 backdrop-blur-sm rounded-lg py-3 px-4 text-sm font-medium hover:bg-white/30 transition-all" data-choice="back">
+                        ⬅️ Kembali
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="absolute bottom-20 left-4 right-4">
+            <div class="bg-gray-700 rounded-full h-2">
+                <div id="progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 25%"></div>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 text-center">Progress Cerita</p>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-gray-800 p-4">
+            <div class="flex justify-around items-center">
+                <button class="nav-btn flex flex-col items-center space-y-1 text-blue-400">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z"></path>
+                        <path d="M2 17L12 22L22 17"></path>
+                        <path d="M2 12L12 17L22 12"></path>
+                    </svg>
+                    <span class="text-xs">Cerita</span>
+                </button>
+                
+                <button class="nav-btn flex flex-col items-center space-y-1 text-gray-400">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7Z"></path>
+                    </svg>
+                    <span class="text-xs">Inventory</span>
+                </button>
+                
+                <button class="nav-btn flex flex-col items-center space-y-1 text-gray-400">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L13.5 2.5L16.17 5.17L10.17 11.17L15 16H17V14L21 9ZM1 9L3 11L6 8L9 11V7L6 4L1 9Z"></path>
+                    </svg>
+                    <span class="text-xs">Karakter</span>
+                </button>
+                
+                <button class="nav-btn flex flex-col items-center space-y-1 text-gray-400">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"></path>
+                    </svg>
+                    <span class="text-xs">Info</span>
+                </button>
+            </div>
+        </nav>
+    </main>
+
+    <!-- Achievement Notification -->
+    <div id="achievement" class="fixed top-20 left-4 right-4 bg-yellow-500 text-black p-3 rounded-lg transform -translate-y-full transition-transform duration-300">
+        <div class="flex items-center space-x-2">
+            <span class="text-xl">🏆</span>
+            <div>
+                <p class="font-bold text-sm">Achievement Unlocked!</p>
+                <p class="text-xs" id="achievement-text">Memulai Petualangan Pertama</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            currentPanel: 1,
+            score: 0,
+            progress: 25,
+            achievements: []
+        };
+
+        // DOM Elements
+        const scoreEl = document.getElementById('score');
+        const progressBar = document.getElementById('progress-bar');
+        const achievementEl = document.getElementById('achievement');
+        const achievementText = document.getElementById('achievement-text');
+
+        // Initialize Game
+        function initGame() {
+            updateUI();
+            addEventListeners();
+            showAchievement("Selamat Datang di Comic Quest!");
+        }
+
+        // Event Listeners
+        function addEventListeners() {
+            document.addEventListener('click', handleChoiceClick);
+        }
+
+        function handleChoiceClick(e) {
+            if (e.target.classList.contains('choice-btn')) {
+                const choice = e.target.dataset.choice;
+                processChoice(choice);
+            }
+        }
+
+        // Process Player Choice
+        function processChoice(choice) {
+            switch(choice) {
+                case 'yes':
+                    showPanel(2);
+                    updateProgress(50);
+                    addScore(10);
+                    break;
+                    
+                case 'forest':
+                    showPanel(3);
+                    updateProgress(75);
+                    addScore(100);
+                    showAchievement("Penjelajah Hutan!");
+                    break;
+                    
+                case 'castle':
+                    showPanel(4);
+                    updateProgress(75);
+                    addScore(50);
+                    break;
+                    
+                case 'continue':
+                    showPanel(2);
+                    updateProgress(100);
+                    addScore(50);
+                    showAchievement("Master Explorer!");
+                    break;
+                    
+                case 'puzzle':
+                    // Simulate puzzle solving
+                    setTimeout(() => {
+                        addScore(200);
+                        showAchievement("Puzzle Master!");
+                        showPanel(2);
+                    }, 1000);
+                    break;
+                    
+                case 'back':
+                    showPanel(2);
+                    break;
+            }
+        }
+
+        // Show Panel
+        function showPanel(panelNum) {
+            // Hide current panel
+            const currentPanel = document.getElementById(`panel-${gameState.currentPanel}`);
+            currentPanel.classList.remove('active');
+            currentPanel.classList.add('hidden');
+            
+            // Show new panel
+            setTimeout(() => {
+                const newPanel = document.getElementById(`panel-${panelNum}`);
+                newPanel.classList.remove('hidden');
+                newPanel.classList.add('flex', 'active');
+                gameState.currentPanel = panelNum;
+            }, 300);
+        }
+
+        // Update Score
+        function addScore(points) {
+            gameState.score += points;
+            scoreEl.textContent = gameState.score;
+            
+            // Add pulse effect
+            scoreEl.parentElement.classList.add('pulse-animation');
+            setTimeout(() => {
+                scoreEl.parentElement.classList.remove('pulse-animation');
+            }, 1000);
+        }
+
+        // Update Progress
+        function updateProgress(percent) {
+            gameState.progress = percent;
+            progressBar.style.width = percent + '%';
+        }
+
+        // Show Achievement
+        function showAchievement(text) {
+            achievementText.textContent = text;
+            achievementEl.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                achievementEl.style.transform = 'translateY(-100%)';
+            }, 3000);
+        }
+
+        // Update UI
+        function updateUI() {
+            scoreEl.textContent = gameState.score;
+            progressBar.style.width = gameState.progress + '%';
+        }
+
+        // Add touch gestures for mobile
+        let startX = 0;
+        let startY = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            if (!startX || !startY) return;
+            
+            let endX = e.changedTouches[0].clientX;
+            let endY = e.changedTouches[0].clientY;
+            
+            let diffX = startX - endX;
+            let diffY = startY - endY;
+            
+            // Swipe gestures (future feature)
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 50) {
+                    // Swipe left
+                    console.log('Swipe left detected');
+                } else if (diffX < -50) {
+                    // Swipe right  
+                    console.log('Swipe right detected');
+                }
+            }
+            
+            startX = 0;
+            startY = 0;
+        });
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', initGame);
+
+        // Prevent zoom on double tap (mobile optimization)
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            let now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>
